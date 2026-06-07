@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Portfolio | Chử Lương Bảo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & Babel CDN for Single-File React Execution -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- MathJax for high-quality LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                            glow: '#06b6d4',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #030712;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+        }
+        /* Custom scrollbar for Glassmorphism feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(14, 165, 233, 0.3);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(4px);
+        }
+        .glass-input:focus {
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+        }
+        .neon-text-glow {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+        }
+    </style>
+</head>
+<body class="text-slate-100 antialiased font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Task 2 Database: 11 Detailed PINNs papers matching Chử Lương Bảo's pdf exactly
+        const PAPERS_DATABASE = [
+            {
+                stt: 1,
+                title: "Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations",
+                author: "Raissi et al.",
+                year: 2019,
+                type: "Bài báo khoa học (Journal of Computational Physics)",
+                details: "Tác giả hàng đầu từ ĐH Brown. NXB Elsevier danh giá. Phương pháp nghiên cứu thực nghiệm và toán học nghiêm ngặt. Trích dẫn hơn 5000 lần.",
+                pros: "Đặt nền móng khởi xướng khái niệm PINNs, khung lý thuyết chặt chẽ.",
+                cons: "Mô hình thuật toán ban đầu chưa tối ưu hóa tốc độ hội tụ so với hiện tại.",
+                rank: "A+"
+            },
+            {
+                stt: 2,
+                title: "Physics-informed machine learning",
+                author: "Karniadakis et al.",
+                year: 2021,
+                type: "Bài báo khoa học (Nature Reviews Physics)",
+                details: "Chuyên gia đầu ngành tiên phong. Tạp chí Nature Reviews Physics đứng đầu thế giới về vật lý.",
+                pros: "Đánh giá toàn cảnh cực kỳ xuất sắc, hệ thống hóa toàn bộ nhánh máy học vật lý.",
+                cons: "Mang tính khảo cứu (Review), ít chi tiết code lập trình cụ thể.",
+                rank: "A+"
+            },
+            {
+                stt: 3,
+                title: "DeepXDE: A deep learning library for solving differential equations",
+                author: "Lu et al.",
+                year: 2021,
+                type: "Bài báo khoa học (SIAM Review)",
+                details: "Hiệp hội Toán ứng dụng và Công nghiệp (SIAM) quản lý. Giới thiệu thư viện mã nguồn mở có kiểm chứng.",
+                pros: "Cung cấp thư viện thực hành Python trực quan, tài liệu hướng dẫn đầy đủ.",
+                cons: "Phụ thuộc chặt chẽ vào các framework như TensorFlow/PyTorch.",
+                rank: "A"
+            },
+            {
+                stt: 4,
+                title: "Artificial neural networks for solving ordinary and partial differential equations",
+                author: "Lagaris et al.",
+                year: 1998,
+                type: "Bài báo khoa học (IEEE Transactions)",
+                details: "Cũ nhưng là công trình đặt viên gạch lịch sử giải phương trình vi phân bằng nơ-ron.",
+                pros: "Cung cấp nền tảng toán học sơ khai về vai trò của nơ-ron.",
+                cons: "Mã nguồn lỗi thời, chưa tích hợp kiến trúc Deep Learning hiện đại.",
+                rank: "B+"
+            },
+            {
+                stt: 5,
+                title: "Physics-informed neural networks for heat transfer problems",
+                author: "Cai et al.",
+                year: 2021,
+                type: "Bài báo khoa học (Journal of Heat Transfer)",
+                details: "Công trình chuyên biệt ứng dụng cho bài toán mô phỏng nhiệt động lực học.",
+                pros: "Giải quyết trực tiếp các phương trình truyền nhiệt thực tế phức tạp.",
+                cons: "Phạm vi hẹp, chỉ giới hạn trong truyền nhiệt vật lý.",
+                rank: "A"
+            },
+            {
+                stt: 6,
+                title: "DGM: A deep learning algorithm for solving partial differential equations",
+                author: "Sirignano & Spiliopoulos",
+                year: 2018,
+                type: "Bài báo khoa học (Journal of Computational Physics)",
+                details: "Hợp tác giữa Đại học Oxford và Đại học Boston. Phương pháp Galerkin kết hợp Deep Learning.",
+                pros: "Chứng minh toán học chặt chẽ về sự hội tụ của thuật toán.",
+                cons: "Thuật toán vô cùng phức tạp, khó cấu hình cho người mới.",
+                rank: "A"
+            },
+            {
+                stt: 7,
+                title: "Data-driven science and engineering: Machine learning, dynamical systems, and control",
+                author: "Brunton & Kutz",
+                year: 2022,
+                type: "Sách chuyên khảo (Cambridge University Press)",
+                details: "Giáo khoa chuẩn mực từ ĐH Washington về phân tích dữ liệu động học.",
+                pros: "Cách tiếp cận sư phạm xuất sắc, có code Python/Matlab kèm theo.",
+                cons: "Nội dung bao quát quá rộng, phần PINNs chỉ chiếm một chương.",
+                rank: "A+"
+            },
+            {
+                stt: 8,
+                title: "Deep learning",
+                author: "Goodfellow et al.",
+                year: 2016,
+                type: "Sách chuyên khảo (MIT Press)",
+                details: "Được viết bởi các huyền thoại AI đạt giải Turing (Yoshua Bengio, Ian Goodfellow).",
+                pros: "Định nghĩa toàn bộ nền móng kinh điển của mạng nơ-ron sâu.",
+                cons: "Thiếu vắng các cập nhật chuyên biệt về tích hợp định luật vật lý.",
+                rank: "A+"
+            },
+            {
+                stt: 9,
+                title: "Understanding and mitigating gradient pathologies in physics-informed neural networks",
+                author: "Wang et al.",
+                year: 2020,
+                type: "Nguồn mở rộng (arXiv Preprint - ĐH Cornell)",
+                details: "Bài phân tích chiều sâu về sự triệt tiêu gradient giữa các hàm mất mát vật lý.",
+                pros: "Tiếp cận nghiên cứu phản biện mới nhất, chỉ rõ giới hạn tối ưu.",
+                cons: "Chưa qua bình duyệt chính thức (peer-reviewed) bởi hội đồng tạp chí.",
+                rank: "B+"
+            },
+            {
+                stt: 10,
+                title: "Lectures on Machine Learning for Physicists",
+                author: "Kröger",
+                year: 2023,
+                type: "Học liệu mở trên Internet",
+                details: "Tài liệu giảng dạy từ Viện Vật lý lý thuyết danh tiếng Max Planck.",
+                pros: "Lập luận trực quan dưới góc nhìn vật lý, dễ tiếp cận.",
+                cons: "Thiếu tính kiểm chứng khắt khe so với bài báo khoa học chính thống.",
+                rank: "B"
+            },
+            {
+                stt: 11,
+                title: "Solving High-Dimensional Partial Differential Equations Using Deep Learning",
+                author: "Han et al.",
+                year: 2018,
+                type: "Nguồn mở rộng (Kỷ yếu hội nghị NeurIPS / PNAS)",
+                details: "Sử dụng phương trình vi phân ngẫu nhiên (SDEs) giải toán không gian nhiều chiều.",
+                pros: "Khắc phục triệt để lời nguyền chiều kích trong toán lý giải tích.",
+                cons: "Yêu cầu lượng toán xác suất ngẫu nhiên cực kỳ đồ sộ.",
+                rank: "A"
+            }
+        ];
+
+        // Task 3: 3 Academic Prompt Scenarios matching PDF
+        const PROMPT_SCENARIOS = [
+            {
+                id: "summarize-pinn",
+                title: "Tóm tắt nghiên cứu PINNs",
+                category: "Tóm tắt học thuật",
+                basic: "Tóm tắt giúp tôi khái niệm về Physics-informed neural networks (PINNs).",
+                advanced: `Đóng vai một giáo sư Khoa học máy tính. Hãy tóm tắt khái niệm PINNs cho một sinh viên năm nhất hiểu. Cấu trúc bài viết gồm:
+1. So sánh ẩn dụ dễ hiểu.
+2. 3 ưu điểm cốt lõi.
+3. Trình bày bằng ngôn ngữ thân thiện, mạch lạc.`,
+                response: `### PINNs: AI Kết Hợp Định Luật Vật Lý
+*Phản hồi giả lập từ Giáo sư ảo của Bảo*
+
+Chào em, rất vui được gặp một sinh viên năm nhất tò mò về PINNs!
+
+#### 1. Ẩn dụ: "Người mù đi đường" và "Bản đồ vật lý"
+Mạng AI thông thường giống như một người mù đang cố gắng học cách đi qua thành phố bằng cách thử sai hàng triệu lần. Nếu may mắn, họ sẽ tìm thấy đường, nhưng nếu gặp chướng ngại vật mới, họ lập tức vấp ngã vì không hiểu bản chất địa hình.
+PINNs thì khác. PINNs giống như việc ta đưa cho người đó một tấm bản đồ chứa các nguyên lý cơ bản (như "nước chảy về chỗ trũng", "không thể đi xuyên tường"). AI lúc này vừa đi, vừa lắng nghe các quy luật vật lý. Nếu AI đưa ra kết quả vi phạm định luật bảo toàn năng lượng, PINNs sẽ gõ đầu nó và bảo: "Cậu không thể tự tạo ra năng lượng từ hư vô!".
+
+#### 2. 3 Ưu điểm cốt lõi của PINNs
+*   **Tiết kiệm dữ liệu cực tốt:** Nhờ biết trước các định luật vật lý, PINNs cần rất ít dữ liệu thực nghiệm để huấn luyện chính xác.
+*   **Bảo toàn tính thực tế:** Đảm bảo đầu ra không bao giờ vi phạm các nguyên lý vật lý cơ bản (như bảo toàn khối lượng, năng lượng).
+*   **Độ chính xác cao:** Khả năng suy luận tốt trong các vùng dữ liệu mà thực nghiệm chưa đo đạc được.`
+            },
+            {
+                id: "taylor-limit",
+                title: "Giải thích Khai triển Taylor",
+                category: "Giảng dạy Toán học",
+                basic: "Giải thích cách dùng khai triển Taylor để tính giới hạn.",
+                advanced: `Đóng vai một giảng viên Giải tích. Hãy hướng dẫn sinh viên tính giới hạn bằng khai triển Taylor. Hãy suy luận từng bước (Think step-by-step):
+Bước 1: Giải thích tại sao trong một số bài toán, dùng Vô cùng bé (VCB) lại dẫn đến triệt tiêu sai số và cho kết quả sai.
+Bước 2: Nêu nguyên tắc chọn bậc khai triển Taylor phù hợp.
+Bước 3: Trình bày ví dụ: giới hạn của (sin(x) - x) / x^3 khi x tiến tới 0.`,
+                response: `### Hướng dẫn tính giới hạn bằng Khai triển Taylor
+*Từ bàn làm việc của Giảng viên Giải tích Chử Lương Bảo*
+
+Chào các em, hôm nay chúng ta sẽ giải mã lý do tại sao phương pháp Taylor lại là cứu cánh khi phương pháp VCB tương đương thông thường thất bại.
+
+#### Bước 1: Tại sao VCB tương đương đôi khi lại "phản chủ"?
+Sai lầm kinh điển của sinh viên là thay thế VCB tương đương ngay lập tức khi chúng nằm trong một **phép trừ**. 
+Khi các em viết $\sin(x) \approx x$, thực chất các em đã vứt bỏ các thành phần bậc cao hơn như $x^3, x^5$. Nếu bài toán là phép nhân/chia, việc này hoàn toàn ổn. Nhưng nếu là phép trừ như $\sin(x) - x$, các thành phần chính $x - x$ triệt tiêu mất tiêu, khiến kết quả tiến về 0 một cách sai lầm. Cái quyết định giới hạn lúc này chính là những phần bậc cao các em vừa vứt đi!
+
+#### Bước 2: Nguyên tắc chọn bậc khai triển Taylor
+*   Quan sát bậc của mẫu số (hoặc vô cùng bé trội ở mẫu). Ví dụ mẫu số là $x^3$, ta cần khai triển tử số đến bậc ít nhất là bậc 3 để tránh triệt tiêu hết.
+
+#### Bước 3: Giải ví dụ minh họa
+Tính giới hạn: $L = \lim_{x \to 0} \frac{\sin(x) - x}{x^3}$
+Khai triển Maclaurin của $\sin(x)$ đến bậc 3:
+$$\sin(x) = x - \frac{x^3}{3!} + o(x^3) = x - \frac{x^3}{6} + o(x^3)$$
+Thế vào tử số:
+$$\sin(x) - x = \left(x - \frac{x^3}{6} + o(x^3)\right) - x = -\frac{x^3}{6} + o(x^3)$$
+Bây giờ, chia cho mẫu số $x^3$:
+$$L = \lim_{x \to 0} \frac{-\frac{x^3}{6} + o(x^3)}{x^3} = -\frac{1}{6}$$
+Kết quả cực kỳ chính xác và đẹp đẽ!`
+            },
+            {
+                id: "chemistry-quiz",
+                title: "Tạo câu hỏi Hóa học tư duy",
+                category: "Thiết kế sư phạm",
+                basic: "Tạo 3 câu hỏi hóa học lớp 10.",
+                advanced: `Đóng vai một gia sư Hóa học. Hãy tạo 2 câu hỏi tự luận kiểm tra tư duy phần Liên kết Hóa học cho học sinh lớp 10. Xưng hô "anh" và "em".
+Hãy dùng ví dụ mẫu sau để định hình phong cách thực tế (Few-shot):
+"Tại sao muối ăn NaCl ở thể rắn không dẫn điện nhưng khi pha vào nước lại dẫn điện tốt?"
+Yêu cầu: Cung cấp câu hỏi, gợi ý tư duy cho học sinh, và đáp án chi tiết dành cho gia sư.`,
+                response: `### Bộ câu hỏi ôn tập tư duy liên kết Hóa học
+*Biên soạn bởi Gia sư Hóa học Chử Lương Bảo*
+
+Chào em nhé! Anh rất vui vì em muốn rèn luyện tư duy thực tế thay vì học thuộc lòng công thức khô khan. Dưới đây là 2 câu hỏi cực kỳ thú vị dành cho em:
+
+#### Câu hỏi 1: Sự kỳ diệu của mạng tinh thể Kim cương và Than chì
+*   **Đề bài:** Cả kim cương và than chì đều được cấu tạo hoàn toàn từ các nguyên tử Carbon ($C$). Nhưng tại sao kim cương lại là vật liệu tự nhiên cứng nhất, trong khi than chì lại rất mềm, dễ dàng tách lớp khi em viết bút chì?
+*   **Gợi ý tư duy cho em:** Hãy chú ý đến cấu trúc hình học của liên kết cộng hóa trị giữa các nguyên tử $C$ trong không gian 3 chiều của kim cương so với cấu trúc các lớp phẳng 2 chiều của than chì nhé.
+*   **Đáp án chi tiết cho Gia sư:** 
+    *   *Kim cương:* Mỗi nguyên tử Carbon liên kết cộng hóa trị bền vững với 4 nguyên tử Carbon khác xung quanh tạo cấu trúc tứ diện đều trong không gian 3D cực kỳ chặt chẽ.
+    *   *Than chì:* Các nguyên tử Carbon chỉ liên kết mạnh tạo thành các lớp phẳng 2D. Giữa các lớp này chỉ có lực Van der Waals yếu lực liên kết dễ dàng bị trượt và tách rời khi có ngoại lực (như khi viết).`
+            }
+        ];
+
+        // Main App Component
+        function PortfolioApp() {
+            const [activeTab, setActiveTab] = useState('intro');
+            const [explorerPath, setExplorerPath] = useState('D:\\');
+            const [explorerItems, setExplorerItems] = useState([
+                { name: "Apps", type: "folder" },
+                { name: "Blender_production", type: "folder" },
+                { name: "DOWNLOADS", type: "folder" },
+                { name: "Drivers", type: "folder" },
+                { name: "nháp", type: "folder" },
+                { name: "STNOY", type: "folder" },
+                { name: "ebook.zip", type: "zip" }
+            ]);
+            const [recycleBin, setRecycleBin] = useState([]);
+            
+            // Task 2 filter states
+            const [searchPaper, setSearchPaper] = useState('');
+            const [rankFilter, setRankFilter] = useState('ALL');
+
+            // Task 3 prompt states
+            const [selectedPromptId, setSelectedPromptId] = useState('summarize-pinn');
+            const [promptConsoleOutput, setPromptConsoleOutput] = useState('');
+            const [isPromptTyping, setIsPromptTyping] = useState(false);
+
+            // Task 4 Team Kanban states
+            const [tasks, setTasks] = useState([
+                { id: 1, title: 'Thiết lập Drive nhóm', desc: 'Tổ chức cây thư mục và mở quyền chia sẻ', status: 'done', label: 'Drive' },
+                { id: 2, title: 'Tìm kiếm 11 nguồn PINNs', desc: 'Đánh giá độ tin cậy bằng toán tử nâng cao', status: 'done', label: 'Bài 2' },
+                { id: 3, title: 'Soạn thảo báo cáo Docs', desc: 'Sử dụng chế độ Suggesting đề xuất ý kiến', status: 'progress', label: 'Docs' },
+                { id: 4, title: 'Thiết kế Portfolio Glassmorphic', desc: 'Lập trình ứng dụng React một file hoàn chỉnh', status: 'progress', label: 'Web' },
+                { id: 5, title: 'Viết luận AI Đạo đức', desc: 'Phân tích Carbon Concrete vs CLT Wood', status: 'todo', label: 'Bài 6' }
+            ]);
+
+            // Task 6 Pledge state
+            const [studentName, setPudentName] = useState('');
+            const [pledgeCertified, setPledgeCertified] = useState(false);
+
+            // Back history for explorer
+            const explorerHistory = useRef(['D:\\']);
+
+            // Typewriter simulation for Prompt Response
+            const runPromptSimulation = () => {
+                const target = PROMPT_SCENARIOS.find(p => p.id === selectedPromptId);
+                if (!target) return;
+                setIsPromptTyping(true);
+                setPromptConsoleOutput('Đang khởi chạy hệ thống AI...');
+                
+                let i = 0;
+                const txt = target.response;
+                setPromptConsoleOutput('');
+                
+                const timer = setInterval(() => {
+                    if (i < txt.length) {
+                        setPromptConsoleOutput(prev => prev + txt.charAt(i));
+                        i += 12; // Speed up formatting
+                    } else {
+                        setIsPromptTyping(false);
+                        clearInterval(timer);
+                    }
+                }, 10);
+            };
+
+            // File explorer controller
+            const executeExplorerStep = (step) => {
+                if (step === 'step2') {
+                    // Create folder THUC_HANH_LUONGBAO
+                    setExplorerItems(prev => {
+                        if (!prev.some(x => x.name === "ThucHanh_LUONGBAO")) {
+                            return [...prev, { name: "ThucHanh_LUONGBAO", type: "folder" }];
+                        }
+                        return prev;
+                    });
+                    setExplorerPath('D:\\ThucHanh_LUONGBAO');
+                } else if (step === 'step3') {
+                    // Create GhiChuQuanTrong.txt
+                    setExplorerPath('D:\\ThucHanh_LUONGBAO');
+                    setExplorerItems([{ name: "GhiChuQuanTrong.txt", type: "file" }, { name: "TAILIEU", type: "folder" }]);
+                } else if (step === 'step5') {
+                    // Copy GhiChuQuanTrong.txt to TAILIEU
+                    setExplorerPath('D:\\ThucHanh_LUONGBAO\\TAILIEU');
+                    setExplorerItems([{ name: "GhiChuQuanTrong.txt", type: "file" }]);
+                } else if (step === 'step7') {
+                    // Delete GhiChuQuanTrong -> Trash
+                    setExplorerItems([]);
+                    setRecycleBin([{ name: "GhiChuQuanTrong.txt", type: "file" }]);
+                } else if (step === 'step9') {
+                    setExplorerPath('RecycleBin');
+                }
+            };
+
+            const resetExplorer = () => {
+                setExplorerPath('D:\\');
+                setExplorerItems([
+                    { name: "Apps", type: "folder" },
+                    { name: "Blender_production", type: "folder" },
+                    { name: "DOWNLOADS", type: "folder" },
+                    { name: "Drivers", type: "folder" },
+                    { name: "nháp", type: "folder" },
+                    { name: "STNOY", type: "folder" },
+                    { name: "ebook.zip", type: "zip" }
+                ]);
+                setRecycleBin([]);
+            };
+
+            return (
+                <div className="min-h-screen pb-16">
+                    {/* Glowing Accent Blobs */}
+                    <div className="absolute top-[10%] left-[5%] w-[450px] h-[450px] rounded-full bg-cyan-500/10 blur-[130px] pointer-events-none"></div>
+                    <div className="absolute top-[40%] right-[5%] w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[140px] pointer-events-none"></div>
+
+                    {/* TOP FLOATING NAVIGATION BAR */}
+                    <header className="sticky top-4 z-50 max-w-6xl mx-auto px-4">
+                        <div className="glass-card rounded-2xl px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 border-white/10 shadow-[0_8px_32px_0_rgba(6,182,212,0.15)]">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/30">
+                                    CLB
+                                </div>
+                                <div>
+                                    <h1 className="text-md font-extrabold tracking-wide uppercase text-white">Chử Lương Bảo</h1>
+                                    <p className="text-xs text-cyan-400 font-mono flex items-center gap-1">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Toán ứng dụng &amp; Vật lý học tính toán
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Navigation Tabs */}
+                            <nav className="flex flex-wrap items-center gap-1.5 bg-slate-950/60 p-1.5 rounded-xl border border-white/5">
+                                {[
+                                    { id: 'intro', label: 'Giới Thiệu', icon: 'fa-user-astronaut' },
+                                    { id: 'task1', label: 'Bài 1: Tệp Tin', icon: 'fa-folder-tree' },
+                                    { id: 'task2', label: 'Bài 2: PINNs', icon: 'fa-database' },
+                                    { id: 'task3', label: 'Bài 3: Prompt', icon: 'fa-terminal' },
+                                    { id: 'task4', label: 'Bài 4: Nhóm', icon: 'fa-users-viewfinder' },
+                                    { id: 'task5', label: 'Bài 5: Sáng Tạo', icon: 'fa-compass' },
+                                    { id: 'task6', label: 'Bài 6: Đạo Đức', icon: 'fa-shield-halved' }
+                                ].map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-300 flex items-center gap-1.5 ${
+                                            activeTab === tab.id
+                                                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
+                                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <i className={`fa-solid ${tab.icon}`}></i>
+                                        <span>{tab.label}</span>
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+                    </header>
+
+                    {/* MAIN PORTFOLIO BODY */}
+                    <main className="max-w-6xl mx-auto px-4 mt-10">
+
+                        {/* SECTION 1: GIỚI THIỆU BẢN THÂN */}
+                        {activeTab === 'intro' && (
+                            <div className="space-y-8 animate-fadeIn">
+                                {/* Hero Card Banner */}
+                                <div className="glass-card rounded-3xl p-8 md:p-14 relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-8 border-white/10">
+                                    <div className="absolute top-0 right-0 w-[50%] h-full bg-gradient-to-l from-cyan-500/10 to-transparent pointer-events-none"></div>
+                                    <div className="space-y-5 text-left max-w-2xl relative z-10">
+                                        <span className="bg-cyan-500/10 border border-cyan-400/30 text-cyan-400 text-xs font-mono px-3 py-1 rounded-full uppercase tracking-wider">
+                                            Hành trình năng lực học thuật 2026
+                                        </span>
+                                        <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
+                                            Khai Phá Năng Lực Số <br/>
+                                            <span className="text-gradient bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400">
+                                                Mô Phỏng Vật Lý PINNs
+                                            </span>
+                                        </h2>
+                                        <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                                            Chào mừng Thầy/Cô đến với không gian lưu trữ học thuật của em. Nơi đây tích hợp toàn bộ báo cáo thực hành kỹ năng số nâng cao, tập trung giải quyết phương trình vi phân và các nguyên lý nhiệt động lực bằng Trí Tuệ Nhân Tạo (AI).
+                                        </p>
+                                    </div>
+                                    
+                                    {/* Personal Profile Circle Badge */}
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-indigo-500 rounded-full blur-md opacity-30 animate-pulse"></div>
+                                        <div className="relative w-36 h-36 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 p-1">
+                                            <div className="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center text-center">
+                                                <i className="fa-solid fa-user-graduate text-4xl text-cyan-400 mb-1"></i>
+                                                <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">Chử Lương Bảo</span>
+                                                <span className="text-[9px] text-slate-500">Mã Lớp: [Mã Lớp]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Goals & Academic Vision Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                                    <div className="glass-card rounded-2xl p-6 space-y-3">
+                                        <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                                            <i className="fa-solid fa-bullseye"></i>
+                                        </div>
+                                        <h3 className="font-bold text-lg text-white">Mục Tiêu Học Tập</h3>
+                                        <p className="text-xs text-slate-400 leading-relaxed">
+                                            Làm chủ các mô hình Deep Learning lai vật lý thông tin (PINNs), nâng cấp tư duy tối ưu hóa giải thuật và phát triển giải pháp toán số ứng dụng trong cơ học chất lưu và truyền nhiệt động lực.
+                                        </p>
+                                    </div>
+
+                                    <div className="glass-card rounded-2xl p-6 space-y-3">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                                            <i className="fa-solid fa-feather-pointed"></i>
+                                        </div>
+                                        <h3 className="font-bold text-lg text-white">Ý Nghĩa Của Portfolio</h3>
+                                        <p className="text-xs text-slate-400 leading-relaxed">
+                                            Hệ thống hóa toàn bộ minh chứng thực hành số có kiểm chứng, phục vụ cơ sở đánh giá điểm thi xuất sắc và tạo tiền đề vững chắc cho hồ sơ xin học bổng nghiên cứu khoa học chuyên sâu.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECTION 2: BÀI 1 - FILE EXPLORER SIMULATOR */}
+                        {activeTab === 'task1' && (
+                            <div className="space-y-8 animate-fadeIn text-left">
+                                <div className="border-l-4 border-cyan-500 pl-4 py-1">
+                                    <span className="text-xs text-cyan-400 font-mono uppercase tracking-wider">Bài Tập Thực Hành 1</span>
+                                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Kỹ Năng Quản Lý Tệp Tin &amp; Thư Mục Khoa Học</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Task Theory Explanation */}
+                                    <div className="lg:col-span-1 glass-card rounded-2xl p-6 space-y-5">
+                                        <h3 className="font-bold text-cyan-400 text-sm uppercase tracking-wider flex items-center gap-1.5">
+                                            <i class="fa-solid fa-circle-info"></i>
+                                            <span>Báo Cáo Giải Trình (Mức 4)</span>
+                                        </h3>
+                                        <div className="text-xs text-slate-300 space-y-3 leading-relaxed">
+                                            <p>
+                                                Trong báo cáo <code>Bài 1 - bài tập 1 mục 1.4.pdf</code>, em đã thực hành quy chuẩn hóa toàn bộ các bước lưu trữ tại phân vùng đĩa <code>D:</code> để bảo mật dữ liệu học tập cá nhân.
+                                            </p>
+                                            <p className="font-bold text-cyan-300">Các quy tắc cốt lõi đã thiết lập:</p>
+                                            <ul className="list-disc pl-4 space-y-2">
+                                                <li><strong>Nhất quán về cú pháp:</strong> Đặt tên thư mục không dấu kết hợp ký tự gạch dưới (Snake_case) <code>ThucHanh_LUONGBAO</code> bảo vệ tệp tin khỏi bị lỗi phân mảnh khi đưa lên máy chủ hoặc biên dịch code Python.</li>
+                                                <li><strong>Tổ chức phân cấp (Hierarchy):</strong> Phân chia rõ ràng thư mục con <code>TAILIEU</code> và dọn sạch các tệp nháp rác.</li>
+                                                <li><strong>An toàn dữ liệu:</strong> Khôi phục từ Recycle Bin và sử dụng tổ hợp phím <code>Shift + Delete</code> để xóa triệt để bộ nhớ đệm.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    {/* Task Simulator Platform */}
+                                    <div className="lg:col-span-2 glass-card rounded-2xl p-6 space-y-6">
+                                        <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                                            <div>
+                                                <h4 className="font-bold text-white text-sm">Trình Giả Lập File Explorer Tương Tác</h4>
+                                                <p className="text-[11px] text-slate-500">Mô phỏng chân thực các bước thực hành trong file báo cáo của Chử Lương Bảo</p>
+                                            </div>
+                                            <button onClick={resetExplorer} className="px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 text-xs font-mono transition">
+                                                Quay lại mặc định
+                                            </button>
+                                        </div>
+
+                                        {/* Action buttons matching the actual steps of PDF */}
+                                        <div className="flex flex-wrap gap-2 text-xs">
+                                            <button onClick={() => executeExplorerStep('step2')} className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition">
+                                                B2: Tạo folder ThucHanh
+                                            </button>
+                                            <button onClick={() => executeExplorerStep('step3')} className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition">
+                                                B3: Tạo &amp; Đổi tên GhiChu
+                                            </button>
+                                            <button onClick={() => executeExplorerStep('step5')} className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition">
+                                                B5: Copy GhiChu vào TaiLieu
+                                            </button>
+                                            <button onClick={() => executeExplorerStep('step7')} className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition">
+                                                B7: Xóa tệp GhiChu (Vào rác)
+                                            </button>
+                                            <button onClick={() => executeExplorerStep('step9')} className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 text-slate-300 hover:text-cyan-400 transition">
+                                                B9: Mở Recycle Bin
+                                            </button>
+                                        </div>
+
+                                        {/* Explorer Window Display */}
+                                        <div className="bg-slate-950/80 rounded-xl border border-white/5 p-4 space-y-4">
+                                            <div className="flex justify-between items-center text-xs font-mono text-slate-400 border-b border-white/5 pb-2">
+                                                <span>Path: <strong className="text-cyan-400">{explorerPath}</strong></span>
+                                                <span>Recycle Bin: <strong className="text-red-400">{recycleBin.length} tệp</strong></span>
+                                            </div>
+
+                                            {/* Folder View */}
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-2 min-h-[120px]">
+                                                {explorerPath !== 'RecycleBin' ? (
+                                                    explorerItems.map((item, idx) => (
+                                                        <div key={idx} className="p-3 bg-white/5 border border-white/5 rounded-xl text-center flex flex-col items-center justify-center gap-2 hover:border-cyan-500/20 transition">
+                                                            <i className={`fa-solid ${item.type === 'folder' ? 'fa-folder text-yellow-500' : 'fa-file-lines text-cyan-400'} text-xl`}></i>
+                                                            <span className="text-[10px] font-mono truncate w-full text-slate-300">{item.name}</span>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    recycleBin.map((item, idx) => (
+                                                        <div key={idx} className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-center flex flex-col items-center justify-center gap-2">
+                                                            <i className="fa-solid fa-file-excel text-red-400 text-xl animate-pulse"></i>
+                                                            <span className="text-[10px] font-mono truncate w-full text-slate-300">{item.name}</span>
+                                                            <button onClick={() => {
+                                                                setRecycleBin([]);
+                                                                setExplorerItems(prev => [...prev, { name: "GhiChuQuanTrong.txt", type: "file" }]);
+                                                                setExplorerPath('D:\\ThucHanh_LUONGBAO');
+                                                            }} className="text-[9px] text-cyan-400 font-bold hover:underline uppercase">
+                                                                Restore
+                                                            </button>
+                                                        </div>
+                                                    ))
+                                                )}
+                                                {explorerPath !== 'RecycleBin' && explorerItems.length === 0 && (
+                                                    <div className="col-span-full text-center py-6 text-[10px] font-mono text-slate-600">[Thư mục này hiện đang trống]</div>
+                                                )}
+                                                {explorerPath === 'RecycleBin' && recycleBin.length === 0 && (
+                                                    <div className="col-span-full text-center py-6 text-[10px] font-mono text-slate-600">[Thùng rác trống]</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* PDF Download Action Button */}
+                                <div className="flex justify-end pt-4">
+                                    <a href="https://drive.google.com/file/d/your_drive_link_here/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="glass-card px-5 py-2.5 rounded-xl border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:text-white transition-all text-xs font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/5">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>Xem/Tải file PDF báo cáo Bài 1</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECTION 3: BÀI 2 - PINNs DATABASE SEARCH */}
+                        {activeTab === 'task2' && (
+                            <div className="space-y-8 animate-fadeIn text-left">
+                                <div className="border-l-4 border-cyan-500 pl-4 py-1">
+                                    <span className="text-xs text-cyan-400 font-mono uppercase tracking-wider">Bài Tập Thực Hành 2</span>
+                                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Tìm Kiếm Học Thuật &amp; Đánh Giá Nguồn Tin (PINNs)</h2>
+                                </div>
+
+                                <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6">
+                                    <p className="text-xs text-slate-400 leading-relaxed">
+                                        <strong>Chủ đề nghiên cứu chuyên sâu:</strong> Ứng dụng của Mạng nơ-ron nhân tạo thông tin vật lý (Physics-Informed Neural Networks - PINNs) trong việc giải phương trình đạo hàm riêng và mô phỏng Nhiệt động lực học. Được trích lọc bằng các toán tử nâng cao từ <code>bài 2 - bài tập 2 mục 2.4.pdf</code> của Chử Lương Bảo.
+                                    </p>
+
+                                    {/* Search & Filter tools */}
+                                    <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch">
+                                        <div className="relative flex-1">
+                                            <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                            <input
+                                                type="text"
+                                                placeholder="Tìm kiếm tài liệu, tác giả, loại nguồn..."
+                                                value={searchPaper}
+                                                onChange={(e) => setSearchPaper(e.target.value)}
+                                                className="w-full glass-input rounded-xl py-2 px-10 text-xs text-slate-200 focus:outline-none"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs">
+                                            <span className="text-slate-500">Xếp hạng:</span>
+                                            <select
+                                                value={rankFilter}
+                                                onChange={(e) => setRankFilter(e.target.value)}
+                                                className="glass-input rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none"
+                                            >
+                                                <option value="ALL">Tất cả độ tin cậy</option>
+                                                <option value="A+">Rất cao (A+)</option>
+                                                <option value="A">Cao (A)</option>
+                                                <option value="B+">Khá (B+)</option>
+                                                <option value="B">Khá (B)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Responsive Table Container */}
+                                    <div className="overflow-x-auto rounded-xl border border-white/5 shadow-2xl">
+                                        <table className="w-full text-left text-xs border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-950/60 text-slate-400 font-semibold border-b border-white/5">
+                                                    <th className="p-4 w-12 text-center">STT</th>
+                                                    <th className="p-4 w-1/3">Tài liệu / Tác giả / Năm</th>
+                                                    <th className="p-4 w-44">Loại nguồn</th>
+                                                    <th className="p-4">Độc quyền phân tích &amp; Đánh giá Ưu / Nhược</th>
+                                                    <th className="p-4 w-28 text-center">Xếp hạng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5">
+                                                {PAPERS_DATABASE.filter(paper => {
+                                                    const matchesSearch = paper.title.toLowerCase().includes(searchPaper.toLowerCase()) ||
+                                                                          paper.author.toLowerCase().includes(searchPaper.toLowerCase());
+                                                    const matchesFilter = rankFilter === 'ALL' || paper.rank === rankFilter;
+                                                    return matchesSearch && matchesFilter;
+                                                }).map((paper, idx) => (
+                                                    <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                                                        <td className="p-4 text-center font-mono text-slate-500">{paper.stt}</td>
+                                                        <td className="p-4 font-semibold text-slate-200">
+                                                            <p className="leading-snug">{paper.title}</p>
+                                                            <span className="text-[10px] text-cyan-400 block mt-1"><i className="fa-regular fa-user mr-1"></i> {paper.author} ({paper.year})</span>
+                                                        </td>
+                                                        <td className="p-4 text-slate-400 font-mono text-[11px]">{paper.type}</td>
+                                                        <td className="p-4 space-y-2">
+                                                            <p className="text-[11px] text-slate-500 leading-normal italic">{paper.details}</p>
+                                                            <div className="text-[11px] space-y-1">
+                                                                <p className="text-emerald-400 font-medium"><strong>Ưu điểm:</strong> {paper.pros}</p>
+                                                                <p className="text-rose-400 font-medium"><strong>Nhược điểm:</strong> {paper.cons}</p>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-4 text-center">
+                                                            <span className={`px-2 py-1 rounded text-[9px] font-bold ${
+                                                                paper.rank.includes('A+') ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                                                paper.rank.includes('A') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                                                'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                                                            }`}>{paper.rank}</span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <a href="https://drive.google.com/file/d/your_drive_link_here_2/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="glass-card px-5 py-2.5 rounded-xl border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:text-white transition-all text-xs font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/5">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>Xem/Tải file PDF báo cáo Bài 2</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECTION 4: BÀI 3 - PROMPT SIMULATOR */}
+                        {activeTab === 'task3' && (
+                            <div className="space-y-8 animate-fadeIn text-left">
+                                <div className="border-l-4 border-cyan-500 pl-4 py-1">
+                                    <span className="text-xs text-cyan-400 font-mono uppercase tracking-wider">Bài Tập Thực Hành 3</span>
+                                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Kỹ Nghệ Viết Prompt (Prompt Engineering) Trong Học Tập</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Control Panel */}
+                                    <div className="lg:col-span-1 glass-card rounded-2xl p-6 space-y-4">
+                                        <h3 className="font-bold text-white text-sm">Lựa chọn tác vụ học thuật</h3>
+                                        <div className="space-y-2">
+                                            {PROMPT_SCENARIOS.map(tmpl => (
+                                                <button
+                                                    key={tmpl.id}
+                                                    onClick={() => { setSelectedPromptId(tmpl.id); setPromptConsoleOutput(''); }}
+                                                    className={`w-full text-left p-3.5 rounded-xl border text-xs font-mono transition-all duration-300 ${
+                                                        selectedPromptId === tmpl.id
+                                                            ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400'
+                                                            : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:text-white'
+                                                    }`}
+                                                >
+                                                    <div className="font-bold mb-1">{tmpl.title}</div>
+                                                    <div className="text-[10px] text-slate-500">{tmpl.category}</div>
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <div className="text-xs text-slate-400 space-y-2 border-t border-white/5 pt-4 leading-relaxed">
+                                            <p className="text-cyan-400 font-bold">Các nguyên lý đã tối ưu hóa (Mức 4):</p>
+                                            <ul className="list-disc pl-4 space-y-1 text-[11px]">
+                                                <li><strong>Role Prompting:</strong> Định vị vai trò chuyên sâu (Giáo sư, Giảng viên Giải tích, Gia sư Hóa).</li>
+                                                <li><strong>Context &amp; Structure:</strong> Phân chia các bước tư duy (Chain-of-thought).</li>
+                                                <li><strong>Few-shot:</strong> Cung cấp câu hỏi mẫu chuẩn hóa.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    {/* Comparison & Console Sandbox */}
+                                    <div className="lg:col-span-2 space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Basic Prompt */}
+                                            <div className="glass-card rounded-xl p-5 space-y-2 relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 bg-red-500/10 border-l border-b border-red-500/20 text-red-400 text-[9px] font-bold font-mono px-2 py-1 uppercase">
+                                                    Prompt ban đầu
+                                                </div>
+                                                <h4 className="text-xs font-bold text-slate-400">Prompt thô:</h4>
+                                                <p className="bg-slate-950/60 p-3 rounded-lg text-xs font-mono text-red-300/80 leading-relaxed min-h-[90px]">
+                                                    "{PROMPT_SCENARIOS.find(p => p.id === selectedPromptId)?.basic}"
+                                                </p>
+                                            </div>
+
+                                            {/* Advanced Prompt */}
+                                            <div className="glass-card rounded-xl p-5 space-y-2 relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 bg-emerald-500/10 border-l border-b border-emerald-500/20 text-emerald-400 text-[9px] font-bold font-mono px-2 py-1 uppercase">
+                                                    Prompt cải tiến
+                                                </div>
+                                                <h4 className="text-xs font-bold text-slate-400">Prompt tối ưu:</h4>
+                                                <p className="bg-slate-950/60 p-3 rounded-lg text-xs font-mono text-emerald-300 leading-relaxed min-h-[90px]">
+                                                    "{PROMPT_SCENARIOS.find(p => p.id === selectedPromptId)?.advanced}"
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* AI Code Console Display */}
+                                        <div className="glass-card rounded-2xl p-6 space-y-4">
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+                                                    <span className="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                                                    <span className="font-mono text-xs text-slate-500 ml-2">Gemini AI Stream Engine</span>
+                                                </div>
+                                                <button
+                                                    onClick={runPromptSimulation}
+                                                    disabled={isPromptTyping}
+                                                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs transition-all shadow-md"
+                                                >
+                                                    {isPromptTyping ? 'AI đang biên soạn...' : 'Bắt đầu giải mã AI'}
+                                                </button>
+                                            </div>
+
+                                            {/* Response screen */}
+                                            <div className="bg-slate-950/90 rounded-xl border border-white/5 p-5 min-h-[250px] max-h-[350px] overflow-y-auto font-mono text-xs text-slate-300 leading-relaxed">
+                                                {promptConsoleOutput ? (
+                                                    <div className="whitespace-pre-wrap">{promptConsoleOutput}</div>
+                                                ) : (
+                                                    <div className="text-slate-600 text-center py-20">
+                                                        [Nhấn nút "Bắt đầu giải mã AI" ở trên để chạy thử kết quả của Bảo]
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <a href="https://drive.google.com/file/d/your_drive_link_here_3/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="glass-card px-5 py-2.5 rounded-xl border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:text-white transition-all text-xs font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/5">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>Xem/Tải file PDF báo cáo Bài 3</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECTION 5: BÀI 4 - COLLABORATION KANBAN */}
+                        {activeTab === 'task4' && (
+                            <div className="space-y-8 animate-fadeIn text-left">
+                                <div className="border-l-4 border-cyan-500 pl-4 py-1">
+                                    <span className="text-xs text-cyan-400 font-mono uppercase tracking-wider">Bài Tập Thực Hành 4</span>
+                                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Kỹ Năng Cộng Tác &amp; Quản Lý Dự Án Trực Tuyến</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Kanban Cards */}
+                                    <div className="lg:col-span-2 glass-card rounded-2xl p-6 space-y-6">
+                                        <div>
+                                            <h3 className="font-bold text-white text-sm">Bảng Quản Lý Tiến Độ (Mô hình Kanban)</h3>
+                                            <p className="text-[11px] text-slate-500">Trello &amp; Discord phối hợp tối ưu hóa năng suất</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+                                            {/* Column To Do */}
+                                            <div className="space-y-3">
+                                                <h4 className="text-slate-400 border-b border-white/5 pb-2 uppercase text-[10px] tracking-wider flex items-center justify-between">
+                                                    <span>Cần Làm</span>
+                                                    <span className="w-2 h-2 rounded-full bg-slate-500"></span>
+                                                </h4>
+                                                {tasks.filter(t => t.status === 'todo').map(task => (
+                                                    <div key={task.id} className="bg-slate-950/60 p-3.5 rounded-xl border border-white/5 space-y-2">
+                                                        <span className="text-[9px] bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.5 rounded">{task.label}</span>
+                                                        <div className="font-semibold text-slate-200 mt-1">{task.title}</div>
+                                                        <p className="text-[10px] text-slate-500 leading-relaxed">{task.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Column Doing */}
+                                            <div className="space-y-3">
+                                                <h4 className="text-cyan-400 border-b border-white/5 pb-2 uppercase text-[10px] tracking-wider flex items-center justify-between">
+                                                    <span>Đang làm</span>
+                                                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                                                </h4>
+                                                {tasks.filter(t => t.status === 'progress').map(task => (
+                                                    <div key={task.id} className="bg-cyan-500/5 p-3.5 rounded-xl border border-cyan-500/15 space-y-2">
+                                                        <span className="text-[9px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.5 rounded">{task.label}</span>
+                                                        <div className="font-semibold text-slate-200 mt-1">{task.title}</div>
+                                                        <p className="text-[10px] text-slate-400 leading-relaxed">{task.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Column Done */}
+                                            <div className="space-y-3">
+                                                <h4 className="text-emerald-400 border-b border-white/5 pb-2 uppercase text-[10px] tracking-wider flex items-center justify-between">
+                                                    <span>Hoàn thành</span>
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                                </h4>
+                                                {tasks.filter(t => t.status === 'done').map(task => (
+                                                    <div key={task.id} className="bg-emerald-500/5 p-3.5 rounded-xl border border-emerald-500/10 space-y-2">
+                                                        <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded">{task.label}</span>
+                                                        <div className="font-semibold text-slate-500 line-through mt-1">{task.title}</div>
+                                                        <p className="text-[10px] text-slate-600 leading-relaxed">{task.desc}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Sidebar Challenges & Solutions */}
+                                    <div className="lg:col-span-1 glass-card rounded-2xl p-6 space-y-4">
+                                        <h3 className="font-bold text-white text-sm">Vượt rào cản làm việc số</h3>
+                                        <div className="space-y-3 text-xs leading-relaxed text-slate-400">
+                                            <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                                                <p className="text-amber-400 font-bold">1. Thách thức: Trôi tài liệu Discord</p>
+                                                <p className="text-[11px] mt-1 text-slate-300">Nhóm thảo luận liên tục trôi file. Khắc phục: Ghim (Pin Message) các link gốc quan trọng, đồng bộ tag vào Trello card.</p>
+                                            </div>
+                                            <div className="p-3 bg-white/5 border border-white/5 rounded-xl">
+                                                <p className="text-cyan-400 font-bold">2. Thách thức: Chắp vá nội dung Google Docs</p>
+                                                <p className="text-[11px] mt-1 text-slate-300">Nhiều người sửa trực tiếp phá vỡ cấu trúc. Khắc phục: Bắt buộc dùng chế độ "Đề xuất chỉnh sửa" (Suggesting) và giải quyết qua hộp thoại comment.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <a href="https://drive.google.com/file/d/your_drive_link_here_4/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="glass-card px-5 py-2.5 rounded-xl border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:text-white transition-all text-xs font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/5">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>Xem/Tải file PDF báo cáo Bài 4</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECTION 6: BÀI 5 - CREATIVE CONTENT (BLOG GREEN TRAVELS) */}
+                        {activeTab === 'task5' && (
+                            <div className="space-y-8 animate-fadeIn text-left">
+                                <div className="border-l-4 border-cyan-500 pl-4 py-1">
+                                    <span className="text-xs text-cyan-400 font-mono uppercase tracking-wider">Bài Tập Thực Hành 5</span>
+                                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Sáng Tạo Nội Dung Số Hợp Tác Với AI (Sinh Thế)</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Campaign Text Block */}
+                                    <div className="lg:col-span-2 glass-card rounded-2xl p-6 md:p-8 space-y-5">
+                                        <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono px-3 py-1 rounded-full uppercase tracking-wider">
+                                            Chiến dịch: Green Travels Gen Z
+                                        </span>
+                                        <h3 className="font-bold text-xl text-white">Bản thảo blog hoàn thiện (Bảo tinh chỉnh 60%)</h3>
+                                        
+                                        <div className="space-y-4 text-xs text-slate-300 leading-relaxed font-sans">
+                                            <p className="border-l-2 border-cyan-500 pl-3 italic text-slate-400">
+                                                "Chào Gen Z tụi mình! Đi du lịch bền vững không hề nhàm chán hay 'khổ hạnh' như lời đồn đâu. Đó chính là sự thấu hiểu và kết nối sâu thẳm giữa chúng mình và mẹ thiên nhiên đó."
+                                            </p>
+                                            <p><strong>Bước 1: Chốt hạ điểm đến "thuận tự nhiên" (Eco-mindset):</strong> Lựa chọn homestay bản địa của người dân thay vì các resort bê tông hóa tàn phá rừng. Vừa bảo vệ môi trường vừa trải nghiệm trọn vẹn văn hóa địa phương.</p>
+                                            <p><strong>Bước 2: Pack đồ thông minh - Sống xanh không dấu vết (Zero-waste):</strong> Balo chiến thần không thể thiếu bình nước inox cá nhân, túi vải tote, hộp đựng xà bông giấy. Hạn chế tối đa túi nilon tại Cù Lao Chàm hay nhặt rác Đà Lạt.</p>
+                                        </div>
+                                    </div>
+
+                                    {/* AI Generation Metadata */}
+                                    <div className="lg:col-span-1 glass-card rounded-2xl p-6 space-y-4">
+                                        <h4 className="font-bold text-white text-sm">Hồ Sơ Sáng Tạo Mỹ Thuật Số</h4>
+                                        
+                                        <div className="space-y-3 text-[11px] leading-relaxed text-slate-400 font-mono bg-slate-950 p-4 rounded-xl border border-white/5">
+                                            <div>
+                                                <p className="text-cyan-400 font-bold"># Prompt DALL-E 3:</p>
+                                                <p className="mt-1 text-slate-300 italic">"A high-quality, realistic photo of young vietnamese tourists happily picking up plastic bottles on a beautiful green beach, vibrant colors..."</p>
+                                            </div>
+                                            <div className="border-t border-white/5 pt-3">
+                                                <p className="text-emerald-400 font-bold"># Canva AI (Magic Design):</p>
+                                                <p className="mt-1 text-slate-300">"Infographic about 3 steps of sustainable travel in green and earthy tones."</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <a href="https://drive.google.com/file/d/your_drive_link_here_5/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="glass-card px-5 py-2.5 rounded-xl border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:text-white transition-all text-xs font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/5">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>Xem/Tải file PDF báo cáo Bài 5</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* SECTION 7: BÀI 6 - RESPONSIBLE AI & PLEDGE */}
+                        {activeTab === 'task6' && (
+                            <div className="space-y-8 animate-fadeIn text-left">
+                                <div className="border-l-4 border-cyan-500 pl-4 py-1">
+                                    <span className="text-xs text-cyan-400 font-mono uppercase tracking-wider">Bài Tập Thực Hành 6</span>
+                                    <h2 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Ứng Dụng AI Có Trách Nhiệm &amp; Đạo Đức Trong Học Thuật</h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Task Analysis (Concrete vs CLT Wood Carbon emissions essay) */}
+                                    <div className="lg:col-span-2 glass-card rounded-2xl p-6 md:p-8 space-y-5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs px-2.5 py-0.5 rounded font-mono font-bold">Nghiên cứu chống Ảo Giác (Hallucination)</span>
+                                        </div>
+                                        <h3 className="font-bold text-lg text-gradient">Lịch sử tối ưu &amp; Hiệu chỉnh Số liệu vật liệu môi trường</h3>
+                                        <p className="text-xs text-slate-400">
+                                            Nhiệm vụ: Viết luận so sánh bê tông và gỗ CLT trong kiến trúc hiện đại, tập trung vào khía cạnh bền vững môi trường.
+                                        </p>
+
+                                        <div className="space-y-4 text-xs text-slate-300 leading-relaxed font-sans">
+                                            <p>
+                                                <strong>1. Kiểm chứng số liệu CO2 của AI:</strong> GPT-4o báo cáo sản xuất 1 tấn bê tông phát thải ~900kg CO2, còn gỗ CLT hấp thụ và lưu trữ cacbon âm. Em đã tiến hành tra cứu độc lập các báo cáo môi trường học thuật của Liên Hợp Quốc (UN) để bảo toàn tính xác thực số liệu, tránh lỗi "ảo giác" của AI.
+                                            </p>
+                                            <p>
+                                                <strong>2. Khắc phục thiên kiến (Bias):</strong> Al hầu như chỉ huấn luyện dựa trên dữ liệu phương Tây nên gỗ CLT được khen ngợi tối đa. Em đã hiệu chỉnh thêm 60% dữ liệu về độ ẩm cao, mối mọt đặc trưng của khí hậu nhiệt đới gió mùa tại Việt Nam để đảm bảo tính khách quan đa chiều.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Interactive Cryptographic Academic Pledge Generator */}
+                                    <div className="lg:col-span-1 glass-card rounded-2xl p-6 space-y-4 flex flex-col justify-between">
+                                        <div>
+                                            <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
+                                                <i className="fa-solid fa-signature text-cyan-400"></i>
+                                                <span>Bộ Quy Tắc &amp; Tuyên Ngôn Ký Số</span>
+                                            </h4>
+                                            <p className="text-[11px] text-slate-500 mt-1">Cung cấp họ tên của cậu để khởi tạo cam kết mã hóa liêm chính học thuật.</p>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <input
+                                                type="text"
+                                                placeholder="Nhập tên: Chử Lương Bảo"
+                                                value={studentName}
+                                                onChange={(e) => { setPudentName(e.target.value); setPledgeCertified(false); }}
+                                                className="w-full glass-input rounded-xl px-3 py-2 text-xs focus:outline-none font-mono text-white"
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    if(!studentName) return alert("Vui lòng nhập họ tên!");
+                                                    setPledgeCertified(true);
+                                                }}
+                                                className="w-full py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs font-mono transition"
+                                            >
+                                                Mã hóa chữ ký số
+                                            </button>
+
+                                            {pledgeCertified && (
+                                                <div className="bg-cyan-500/5 rounded-xl border border-cyan-500/20 p-4 space-y-2 text-[10px] animate-fadeIn">
+                                                    <p className="text-cyan-400 font-bold flex items-center gap-1"><i className="fa-solid fa-circle-check"></i> ĐÃ CHỨNG THỰC THÀNH CÔNG:</p>
+                                                    <p className="italic text-slate-400 leading-normal">
+                                                        "Tôi, {studentName}, cam kết 100% tuân thủ tuyệt đối quy định liêm chính học thuật. Tôi chịu hoàn toàn trách nhiệm và cam đoan kiểm chứng chéo toàn bộ dữ liệu của AI trước khi công bố."
+                                                    </p>
+                                                    <div className="flex justify-between border-t border-white/5 pt-2 text-[8px] text-slate-600 font-mono">
+                                                        <span>MÃ HÓA: #PLEDGE-CLB-2026</span>
+                                                        <span>Date: 07/06/2026</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <a href="https://drive.google.com/file/d/your_drive_link_here_6/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="glass-card px-5 py-2.5 rounded-xl border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 hover:text-white transition-all text-xs font-semibold flex items-center gap-2 shadow-lg shadow-cyan-500/5">
+                                        <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                                        <span>Xem/Tải file PDF báo cáo Bài 6</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                    </main>
+
+                    {/* FUTURISTIC GLOBAL FOOTER */}
+                    <footer className="max-w-6xl mx-auto px-4 mt-20 text-center text-xs text-slate-600 border-t border-white/5 pt-8 font-mono">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                            <p>© 2026 Chử Lương Bảo. Đạt chuẩn đánh giá năng lực số tối đa Mức 4 - Xuất sắc.</p>
+                            <div className="flex gap-4">
+                                <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1"><i class="fa-brands fa-github"></i> GitHub</a>
+                                <span>|</span>
+                                <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center gap-1"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PortfolioApp />);
+    </script>
+</body>
+</html>
